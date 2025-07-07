@@ -1,37 +1,51 @@
 import { useAuth0 } from "@auth0/auth0-react";
-import LogoutButton from "../components/LogoutButton";
 import LoginButton from "../components/LoginButton";
+import LogoutButton from "../components/LogoutButton";
 export default function HiddenTest() {
-    const { getAccessTokenSilently } = useAuth0()
+  const { getAccessTokenSilently, getIdTokenClaims } = useAuth0();
 
-    const callApi = async () => {
-        const token = await getAccessTokenSilently({
-            authorizationParams: {
-                audience: import.meta.env.VITE_AUTH0_AUDIENCE
-            }
-        })
+  const callApi = async () => {
+    const token = await getAccessTokenSilently({
+      authorizationParams: {
+        audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+      },
+    });
 
-        console.log(token)
+    const idToken = await getIdTokenClaims();
 
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/client`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-        console.log(response)
+    console.log(token);
+    console.log(idToken?.__raw);
 
-        return (
-            <>
-                <h1 className="text-3xl font-bold underline">Hola</h1>
-                <LoginButton />
-            </>
-        )
-    }
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/client`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(response);
+  };
 
-    return (
-        <div>
-            <LogoutButton />
-            <button onClick={callApi}>Call API</button>
-        </div>
-    )
+  const loginBackend = async () => {
+    const token = await getAccessTokenSilently({
+      authorizationParams: {
+        audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+      },
+    });
+
+    const response = await fetch("http://localhost:8080/api/auth/login", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log(response);
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <LogoutButton />
+      <button onClick={callApi}>Call API</button>
+      <button onClick={loginBackend}>Login to Backend</button>
+    </div>
+  );
 }
