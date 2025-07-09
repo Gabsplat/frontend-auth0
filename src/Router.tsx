@@ -5,12 +5,19 @@ import AuthenticationGuard from "./components/auth0/AuthenticationGuard";
 import HiddenTest from "./pages/HiddenTest";
 
 export default function Router() {
-    return (
-        <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/callback" element={<CallbackPage />} />
-            <Route path="/hidden" element={<AuthenticationGuard component={HiddenTest} />} />
-            <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-    )
-}  
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/callback" element={<CallbackPage />} />
+      <Route
+        path="/hidden"
+        element={<AuthenticationGuard component={HiddenTest} />}
+      />
+      <Route
+        path="/dashboard"
+        element={<AuthenticationGuard component={() => <div>Dashboard</div>} />}
+      />
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  );
+}
