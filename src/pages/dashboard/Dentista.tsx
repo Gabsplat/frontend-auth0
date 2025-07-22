@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
@@ -12,8 +13,6 @@ import {
   FileText,
   Mail,
   Phone,
-  Settings,
-  User,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PacienteHistorialModal } from "@/components/modals/paciente-historial";
@@ -26,7 +25,6 @@ export default function DentistaDashboard() {
   );
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [isConsultationModalOpen, setIsConsultationModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("today");
 
@@ -50,7 +48,6 @@ export default function DentistaDashboard() {
   const handleFetchTurnos = async () => {
     if (!token) return;
 
-    setLoading(true);
     try {
       console.log("backendUser:", backendUser);
       const turnos = await obtenerTurnosPorDentista({
@@ -62,8 +59,6 @@ export default function DentistaDashboard() {
       setAppointments(turnos);
     } catch (error) {
       console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -17,8 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { useLogin } from "@/auth/useLogin";
-
+import { useLogin } from "@/utils/useLogin";
 
 const specialties = [
   {

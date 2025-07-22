@@ -1,6 +1,10 @@
 import { SPRING_URL } from "@/constants/spring-url";
 
-export const obtenerEspecialidades = async ({ token }: { token: string }) => {
+export const obtenerEspecialidades = async ({
+  token,
+}: {
+  token: string | null;
+}) => {
   try {
     const response = await fetch(`${SPRING_URL}/api/especialidades`, {
       method: "GET",

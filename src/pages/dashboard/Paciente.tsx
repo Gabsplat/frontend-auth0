@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,27 +14,9 @@ import { useAuth } from "@/context/AuthContext";
 import { obtenerTurnosPorPaciente } from "@/utils/turnos";
 import type { Turno } from "@/types/Turno";
 
-const medicalHistory = [
-  {
-    date: "2023-12-10",
-    treatment: "Colocación de brackets",
-    doctor: "Dr. Martínez",
-    notes:
-      "Inicio de tratamiento ortodóntico. Paciente tolera bien el procedimiento.",
-    files: ["radiografia_inicial.pdf", "plan_tratamiento.pdf"],
-  },
-  {
-    date: "2023-11-15",
-    treatment: "Limpieza dental profunda",
-    doctor: "Dra. López",
-    notes: "Limpieza completa. Se recomienda control en 6 meses.",
-    files: ["informe_limpieza.pdf"],
-  },
-];
-
 export default function PacienteDashboard() {
   const [activeTab, setActiveTab] = useState("appointments");
-  const [loading, setLoading] = useState(true);
+
   const [appointments, setAppointments] = useState<Turno[]>([]);
 
   const { getAccessToken, backendUser } = useAuth();
@@ -56,7 +39,6 @@ export default function PacienteDashboard() {
   const handleFetchTurnos = async () => {
     if (!token) return;
 
-    setLoading(true);
     try {
       console.log("backendUser:", backendUser);
       const turnos = await obtenerTurnosPorPaciente({
@@ -68,8 +50,6 @@ export default function PacienteDashboard() {
       setAppointments(turnos);
     } catch (error) {
       console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
     }
   };
   return (
