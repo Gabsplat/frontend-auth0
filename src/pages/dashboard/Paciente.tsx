@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,38 +8,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Calendar,
-  FileText,
-  Clock,
-  User,
-  Phone,
-  Mail,
-  MapPin,
-  Download,
-  Plus,
-} from "lucide-react";
-
-const appointments = [
-  {
-    id: 1,
-    date: "2024-01-15",
-    time: "10:00",
-    doctor: "Dr. Martínez",
-    specialty: "Ortodoncia",
-    status: "confirmed",
-    type: "Control mensual",
-  },
-  {
-    id: 2,
-    date: "2024-01-22",
-    time: "14:30",
-    doctor: "Dra. López",
-    specialty: "Limpieza",
-    status: "pending",
-    type: "Limpieza dental",
-  },
-];
+import { Calendar, FileText, Clock } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { obtenerTurnosPorPaciente } from "@/utils/turnos";
+import type { Turno } from "@/types/Turno";
 
 const medicalHistory = [
   {
@@ -61,7 +33,45 @@ const medicalHistory = [
 
 export default function PacienteDashboard() {
   const [activeTab, setActiveTab] = useState("appointments");
+  const [loading, setLoading] = useState(true);
+  const [appointments, setAppointments] = useState<Turno[]>([]);
 
+  const { getAccessToken, backendUser } = useAuth();
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const t = await getAccessToken();
+      setToken(t);
+    };
+    fetchToken();
+  }, [getAccessToken]);
+
+  useEffect(() => {
+    if (token) {
+      handleFetchTurnos();
+    }
+  }, [token]);
+
+  const handleFetchTurnos = async () => {
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      console.log("backendUser:", backendUser);
+      const turnos = await obtenerTurnosPorPaciente({
+        pacienteId: backendUser?.id,
+        token,
+      });
+
+      console.log("Turnos fetched successfully:", turnos);
+      setAppointments(turnos);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white pt-20">
       <div className="container mx-auto px-4 py-8">
@@ -89,14 +99,6 @@ export default function PacienteDashboard() {
                   <FileText className="w-4 h-4 mr-2" />
                   Historia Clínica
                 </Button>
-                <Button
-                  variant={activeTab === "profile" ? "default" : "ghost"}
-                  className="w-full justify-start"
-                  onClick={() => setActiveTab("profile")}
-                >
-                  <User className="w-4 h-4 mr-2" />
-                  Mi Perfil
-                </Button>
               </CardContent>
             </Card>
           </div>
@@ -109,10 +111,6 @@ export default function PacienteDashboard() {
                   <h2 className="text-2xl font-bold text-slate-800">
                     Mis Turnos
                   </h2>
-                  <Button className="bg-blue-600 hover:bg-blue-700">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Nuevo Turno
-                  </Button>
                 </div>
 
                 <div className="grid gap-4">
@@ -129,19 +127,33 @@ export default function PacienteDashboard() {
                             </div>
                             <div>
                               <h3 className="font-semibold text-slate-800">
-                                {appointment.type}
+                                Turno #{appointment.id}
                               </h3>
                               <p className="text-sm text-slate-600">
-                                {appointment.doctor} - {appointment.specialty}
+                                {appointment.dentista.usuario.nombre +
+                                  " " +
+                                  appointment.dentista.usuario.apellido}{" "}
+                                - {appointment.dentista.especialidad.nombre}
                               </p>
                               <div className="flex items-center space-x-4 mt-1">
                                 <span className="text-sm text-slate-500 flex items-center">
                                   <Calendar className="w-4 h-4 mr-1" />
-                                  {appointment.date}
+                                  {new Date(
+                                    appointment.fechaHora
+                                  ).toLocaleDateString("es-AR", {
+                                    year: "numeric",
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                  })}
                                 </span>
                                 <span className="text-sm text-slate-500 flex items-center">
                                   <Clock className="w-4 h-4 mr-1" />
-                                  {appointment.time}
+                                  {new Date(
+                                    appointment.fechaHora
+                                  ).toLocaleTimeString("es-AR", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
                                 </span>
                               </div>
                             </div>
@@ -149,23 +161,38 @@ export default function PacienteDashboard() {
                           <div className="flex items-center space-x-3">
                             <Badge
                               variant={
-                                appointment.status === "confirmed"
+                                appointment.estado === "PROGRAMADO"
                                   ? "default"
+                                  : appointment.estado === "EN_CURSO"
+                                  ? "secondary"
+                                  : appointment.estado === "TERMINADO"
+                                  ? "outline"
+                                  : appointment.estado === "CANCELADO"
+                                  ? "destructive"
                                   : "secondary"
                               }
                               className={
-                                appointment.status === "confirmed"
+                                appointment.estado === "PROGRAMADO"
+                                  ? "bg-blue-100 text-blue-700"
+                                  : appointment.estado === "EN_CURSO"
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : appointment.estado === "TERMINADO"
                                   ? "bg-green-100 text-green-700"
+                                  : appointment.estado === "CANCELADO"
+                                  ? "bg-red-100 text-red-700"
                                   : ""
                               }
                             >
-                              {appointment.status === "confirmed"
-                                ? "Confirmado"
-                                : "Pendiente"}
+                              {appointment.estado === "PROGRAMADO"
+                                ? "Programado"
+                                : appointment.estado === "EN_CURSO"
+                                ? "En curso"
+                                : appointment.estado === "TERMINADO"
+                                ? "Terminado"
+                                : appointment.estado === "CANCELADO"
+                                ? "Cancelado"
+                                : appointment.estado}
                             </Badge>
-                            <Button variant="outline" size="sm">
-                              Modificar
-                            </Button>
                           </div>
                         </div>
                       </CardContent>
@@ -182,106 +209,55 @@ export default function PacienteDashboard() {
                 </h2>
 
                 <div className="grid gap-6">
-                  {medicalHistory.map((record, index) => (
-                    <Card
-                      key={index}
-                      className="hover:shadow-lg transition-shadow"
-                    >
-                      <CardHeader>
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <CardTitle className="text-lg">
-                              {record.treatment}
-                            </CardTitle>
-                            <CardDescription>
-                              {record.doctor} - {record.date}
-                            </CardDescription>
-                          </div>
-                          <Badge variant="outline">{record.date}</Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-slate-700 mb-4">{record.notes}</p>
-                        {record.files.length > 0 && (
-                          <div>
-                            <h4 className="font-semibold text-slate-800 mb-2">
-                              Archivos adjuntos:
-                            </h4>
-                            <div className="flex flex-wrap gap-2">
-                              {record.files.map((file, fileIndex) => (
-                                <Button
-                                  key={fileIndex}
-                                  variant="outline"
-                                  size="sm"
-                                  className="text-xs bg-transparent"
-                                >
-                                  <Download className="w-3 h-3 mr-1" />
-                                  {file}
-                                </Button>
-                              ))}
+                  {appointments
+                    .filter((appointment) => appointment.estado === "TERMINADO")
+                    .map((appointment, index) => (
+                      <Card
+                        key={index}
+                        className="hover:shadow-lg transition-shadow"
+                      >
+                        <CardHeader>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <CardTitle className="text-lg">
+                                Consulta con{" "}
+                                {appointment.dentista.usuario.nombre +
+                                  " " +
+                                  appointment.dentista.usuario.apellido}{" "}
+                                - {appointment.dentista.especialidad.nombre}
+                              </CardTitle>
+                              <CardDescription>
+                                {new Date(
+                                  appointment.fechaHora
+                                ).toLocaleTimeString("es-AR", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </CardDescription>
                             </div>
+                            <Badge variant="outline">
+                              {" "}
+                              {new Date(
+                                appointment.fechaHora
+                              ).toLocaleDateString("es-AR", {
+                                year: "numeric",
+                                month: "2-digit",
+                                day: "2-digit",
+                              })}
+                            </Badge>
                           </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-slate-700 mb-4">
+                            {appointment.notasTratamiento}
+                          </p>
+                          <p className="text-slate-500 mb-4 italic">
+                            {appointment.comentarios}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    ))}
                 </div>
-              </div>
-            )}
-
-            {activeTab === "profile" && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-slate-800">Mi Perfil</h2>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Información Personal</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-slate-700">
-                          Nombre completo
-                        </label>
-                        <p className="text-slate-900">María González</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-slate-700">
-                          DNI
-                        </label>
-                        <p className="text-slate-900">12.345.678</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-slate-700">
-                          Teléfono
-                        </label>
-                        <p className="text-slate-900 flex items-center">
-                          <Phone className="w-4 h-4 mr-2" />
-                          +54 11 1234-5678
-                        </p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-slate-700">
-                          Email
-                        </label>
-                        <p className="text-slate-900 flex items-center">
-                          <Mail className="w-4 h-4 mr-2" />
-                          maria.gonzalez@email.com
-                        </p>
-                      </div>
-                      <div className="md:col-span-2">
-                        <label className="text-sm font-medium text-slate-700">
-                          Dirección
-                        </label>
-                        <p className="text-slate-900 flex items-center">
-                          <MapPin className="w-4 h-4 mr-2" />
-                          Av. Rivadavia 1234, CABA
-                        </p>
-                      </div>
-                    </div>
-                    <Button className="mt-4">Editar Información</Button>
-                  </CardContent>
-                </Card>
               </div>
             )}
           </div>

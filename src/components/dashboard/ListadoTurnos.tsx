@@ -491,7 +491,7 @@ export default function ListadoTurnos() {
                     <Badge className={getStatusColor(appointment.estado)}>
                       {appointment.estado}
                     </Badge>
-                    {appointment.estado === "PENDIENTE" && (
+                    {/* {appointment.estado === "PENDIENTE" && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -520,7 +520,7 @@ export default function ListadoTurnos() {
                       >
                         <X className="w-4 h-4" />
                       </Button>
-                    )}
+                    )} */}
                     <Button
                       variant="outline"
                       size="sm"

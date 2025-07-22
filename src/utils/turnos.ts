@@ -36,6 +36,41 @@ export const obtenerTurnos = async ({ token }: { token: string }) => {
   }
 };
 
+export const obtenerTurnosPorPaciente = async ({
+  pacienteId,
+  token,
+}: {
+  pacienteId: number | undefined;
+  token: string | null;
+}) => {
+  try {
+    if (!token) {
+      throw new Error("Token is required to fetch turnos");
+    }
+    if (!pacienteId) {
+      throw new Error("Paciente ID is required to fetch turnos");
+    }
+    const response = await fetch(
+      `${SPRING_URL}/api/turno/paciente/${pacienteId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch turnos");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching turnos:", error);
+    return [];
+  }
+};
+
 export const obtenerTurnosPorDentista = async ({
   dentistaId,
   token,
