@@ -44,6 +44,7 @@ export function LoginHandler() {
         }
 
         const { role } = (await res.json()) as BackendLoginResponse;
+        console.log("Rol del usuario:", role);
 
         switch (role) {
           case "paciente":
