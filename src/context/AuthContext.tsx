@@ -1,5 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Administrador, Dentista, Paciente } from "@/types/Usuarios";
+import { useAuth0 } from "@auth0/auth0-react";
 import {
   createContext,
   useContext,
@@ -7,8 +9,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useAuth0 } from "@auth0/auth0-react";
-import type { Administrador, Dentista, Paciente } from "@/types/Usuarios";
 
 export type BackendLoginResponse =
   | { role: "paciente"; patient: Paciente }
