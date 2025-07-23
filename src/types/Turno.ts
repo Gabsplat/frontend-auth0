@@ -4,6 +4,7 @@ export type CrearTurno = {
   pacienteId: string;
   dentistaId: string;
   fechaHora: string;
+  estado?: string;
 };
 
 export type ConsultaMedica = {

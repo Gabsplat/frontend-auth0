@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Plus, Edit, Trash2, X, Check, CalendarIcon } from "lucide-react";
+import { Plus, Edit, Trash2, Check, CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Select,
@@ -230,8 +230,15 @@ export default function ListadoTurnos() {
       const [hours, minutes] = editForm.hora.split(":");
       fechaHora.setHours(Number.parseInt(hours), Number.parseInt(minutes));
 
+      console.log("Updating appointment with data:", {
+        estado: selectedAppointment.estado,
+        pacienteId: editForm.pacienteId,
+        dentistaId: editForm.dentistaId,
+        fechaHora: fechaHora.toISOString(),
+      });
       const response = await actualizarTurno({
         appointmentForm: {
+          estado: selectedAppointment.estado,
           pacienteId: editForm.pacienteId,
           dentistaId: editForm.dentistaId,
           fechaHora: fechaHora.toISOString(),
@@ -491,36 +498,19 @@ export default function ListadoTurnos() {
                     <Badge className={getStatusColor(appointment.estado)}>
                       {appointment.estado}
                     </Badge>
-                    {/* {appointment.estado === "PENDIENTE" && (
+                    {appointment.estado === "PENDIENTE" && (
                       <Button
                         variant="outline"
                         size="sm"
                         className="text-green-600 hover:text-green-700 bg-transparent"
                         onClick={() =>
-                          handleChangeAppointmentStatus(
-                            appointment.id,
-                            "CONFIRMADO"
-                          )
+                          handleChangeAppointmentStatus(appointment.id)
                         }
                       >
                         <Check className="w-4 h-4" />
                       </Button>
                     )}
-                    {appointment.estado !== "CANCELADO" && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-red-600 hover:text-red-700 bg-transparent"
-                        onClick={() =>
-                          handleChangeAppointmentStatus(
-                            appointment.id,
-                            "CANCELADO"
-                          )
-                        }
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    )} */}
+
                     <Button
                       variant="outline"
                       size="sm"

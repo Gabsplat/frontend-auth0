@@ -1,5 +1,6 @@
 import { SPRING_URL } from "@/constants/spring-url";
 import type { ConsultaMedica, CrearTurno } from "@/types/Turno";
+import { es } from "date-fns/locale";
 
 export const getStatusColor = (status: string) => {
   switch (status) {
@@ -144,9 +145,9 @@ export const actualizarTurno = async ({
 }) => {
   try {
     const response = await fetch(
-      SPRING_URL + `/api/turno/actualizar/${selectedAppointment.id}`,
+      SPRING_URL + `/api/turno/editar/${selectedAppointment.id}`,
       {
-        method: "PATCH",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -155,6 +156,7 @@ export const actualizarTurno = async ({
           pacienteId: Number.parseInt(appointmentForm.pacienteId),
           dentistaId: Number.parseInt(appointmentForm.dentistaId),
           fechaHora: appointmentForm.fechaHora,
+          estado: appointmentForm.estado,
         }),
       }
     );
