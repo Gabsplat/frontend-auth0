@@ -1,15 +1,15 @@
-# 🦷 Sistema de Gestión de Consultorio Odontológico
+# 🦷 Sistema de Gestión de Clínica Dental
 
 Cátedra Sistemas Distribuidos, Universidad del Aconcagua, Mendoza (2025).
 
 ## 🧑‍🎓 Autores
 
-- **[Gabriel Pérez Diez]**
-- **[Germán Hidalgo]**
+- **Germán Hidalgo**
+- **Gabriel Pérez Diez**
 
 ## 📋 Descripción del Proyecto
 
-Sistema de gestión integral para consultorios odontológicos desarrollado como proyecto universitario. La aplicación permite administrar pacientes, dentistas, especialidades y turnos mediante una interfaz web moderna con autenticación segura y diferentes roles de usuario.
+Sistema de gestión integral para clínicas dentales desarrollado como proyecto universitario. La aplicación permite administrar pacientes, dentistas, especialidades y turnos mediante una interfaz web moderna con autenticación segura y diferentes roles de usuario.
 
 ## 🎯 Características Principales
 
